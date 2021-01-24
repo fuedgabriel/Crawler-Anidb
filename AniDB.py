@@ -1,6 +1,8 @@
 from bs4 import BeautifulSoup
 import requests
 from sys import exit
+import re
+
 
 headers =  {'authority': 'topauto.fun', 'method': 'GET', 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36 Edg/83.0.478.45', 'referer': 'https://anidb.net/anime'}
 
@@ -96,58 +98,93 @@ def get_info(PATH, html):
         #name
         direct_name = itens.find_all('a', attrs={'class': 'name-colored'})
         name = [x.get_text() for x in direct_name]
-        link = [x.get('href') for x in direct_name]
+        links = [x.get('href') for x in direct_name]
         print(name)
-        print(link)
+        print(links)
         print(image)
 
+
+    def get_indirectly_related_anime():
+        #painel dos animes indiretamente relacionados
+        itens = soup.find('div', attrs={'class': 'g_section relations indirect'})
+        #image
+        indirect_image = itens.find_all('img', attrs={'loading': 'lazy'})
+        image = [x.get('src') for x in indirect_image]
+        #name
+        indirect_name = itens.find_all('a', attrs={'class': 'name-colored'})
+        name = [x.get_text() for x in indirect_name]
+        links = [x.get('href') for x in indirect_name]
+        print(name)
+        print(image)
+        print(links)
+
+        
     def get_similar_anime():
-        #painel dos animes diretamente relacionados
+        #painel dos animes diretamente similares
         itens = soup.find('div', attrs={'class': 'g_section similaranime resized'})
-        print(itens)
-        input()
         #image
         similar_image = itens.find_all('img', attrs={'loading': 'lazy'})
         image = [x.get('src') for x in similar_image]
         #name
-        similar_name = itens.find_all('a', attrs={'class': 'name-colored'})
-        name = [x.get_text() for x in similar_name]
+        similar_name = itens.find_all('div', attrs={'class': 'name'})
+        name = [x.get_text().replace('\n','') for x in similar_name]
 
-        cont = 0
-        for x in name:
-            del(name[cont])
-            cont=cont+1
-        link = [x.get('href') for x in similar_name]
-
+        #links
+        links = []
+        r = re.compile('(?<=href=").*?(?=")')
+        for y in similar_name:
+            links.append(r.findall(str(y))[0])
         print(name)
-        print(link)
+        print(links)
         print(image)
-        input()
 
-#Me fudi
-        '''
-    def get_indirectly_related_anime():
-        #painel dos animes indiretamente relacionados
-        itens = soup.find('div', attrs={'class': 'pane directly_related hide'})
-        #image
-        print(itens)
-        indirect_image = itens.find_all('img', attrs={'loading': 'lazy'})
-        image = [x.get('src') for x in direct_image]
-        #name
-        indirect_name = itens.find_all('a', attrs={'class': 'name-colored'})
-        name = [x.get_text() for x in direct_name]
-        link = [x.get('href') for x in direct_name]
+    
+    def get_episodes():
+        #painel dos episódios
+        itens = soup.find_all('form', attrs={'action': '/perl-bin/animedb.pl'})
+        #episode
+        episode_html = itens[4].find_all('abbr', attrs={'itemprop': 'episodeNumber'})
+        episode_ep = [x.get_text().replace('\n','').replace('\t','') for x in episode_html]
+        #Title
+        title_html = itens[4].find_all('label', attrs={'itemprop': 'name'})
+        episode_title = [x.get_text().replace('\n','').replace('\t','') for x in title_html]
+        #Duration
+        duration_html = itens[4].find_all('td', attrs={'itemprop': 'timeRequired'})
+        episode_duration = [x.get_text().replace('\n','').replace('\t','') for x in duration_html]
+        #Air-date
+        date_html = itens[4].find_all('td', attrs={'itemprop': 'datePublished'})
+        episode_date = [x.get_text().replace('\n','').replace('\t','') for x in date_html]
+        print(episode_ep)
+        print(episode_title)
+        print(episode_duration)
+        print(episode_date)
 
-        print(name)
-        print(image)
-        print(link)
+    def get_songs():
+        #painel das músicas
+        itens = soup.find_all('div', attrs={'class': 'pane hide songs'})
+        #Name
+        song_html = itens[0].find_all('td', attrs={'class': 'name song'})
+        song_name = [x.get_text().replace('\n','').replace('\t','') for x in song_html]
+        #href
+        song_href = []
+        r = re.compile('(?<=href=").*?(?=")')
+        for y in song_html:
+            song_href.append(r.findall(str(y))[0])
+        #Local
+        song_local_html = itens[0].find_all('td', attrs={'class': 'eprange'})
+        song_local = [x.get_text().replace('\n','').replace('\t','') for x in song_local_html]
+        print(song_local)
+        print(song_name)
+        print(song_href)
         
-        input()
-        '''
+        
+        
+        
+        
+    
+        
     
     
-    get_similar_anime()
-    get_directly_related_anime()
     infs['Official_Title_Verified_Yes'] = get_alternative_names()
     infs['Official_Title_Verified_No'] = get_alternative_names_no()
     infs['Tags'] = get_genres()
@@ -155,6 +192,16 @@ def get_info(PATH, html):
     infs['Resources'] = get_resources()
     infs['Description'] = get_description()
     infs['Image'] = get_image()
+    print("\n\nEPISÓDIOS __________________________________________________________________________")    
+    get_episodes()
+    print("\n\nANIMES DIRETAMETE RELACIONADO __________________________________________________________________________")    
+    get_directly_related_anime()
+    print("\n\nANIMES INDIRETAMETE RELACIONADO __________________________________________________________________________")    
+    get_indirectly_related_anime()
+    print("\n\nANIMES SIMILARES__________________________________________________________________________")    
+    get_similar_anime()
+    print("\n\nMÙSICAS __________________________________________________________________________")    
+    get_songs()
 
 
     for x in html_info:
