@@ -35,201 +35,198 @@ def get_info(PATH, html):
     'Tags' : None,
     'Rating' : None,
     'Avarage' : None,
-    'Review_Rating' : None,
-    'Added_By' : None,
-    'Edited_By' : None,
-    'Resources': None,
     'Description': None,
     'Image': None,
-    
+    'Directly related': None,
+    'Indirectly related': None,
+    'Similar anime': None, 
+    'Songs': None,
+    'Episodes': None
     }
-
+    
+    
+    
         
-    def get_genres():
-        itens = html_info.find_all('span', attrs={'class': 'tagname'})
-        genres = [x.get_text() for x in itens]
-        return " ".join(genres)
+    def get_tag():
+        try:
+            itens = html_info.find_all('span', attrs={'class': 'tagname'})
+            genres = [x.get_text() for x in itens]
+            return True, "".join(genres);
+        except:
+            return False, False;
 
 
     def get_alternative_names():
-        itens = html_info.find_all('label', attrs={'itemprop':"alternateName"})
-        names = itens[0].get_text()
-        return names
+        try:
+            itens = html_info.find_all('label', attrs={'itemprop':"alternateName"})
+            names = itens[0].get_text()
+            return True, names;
+        except:
+            return False, False;
+            
+        
 
     def get_alternative_names_no():
-        itens = html_info.find_all('label', attrs={'itemprop':"alternateName"})
-        print(len(itens))
-        if len(itens) >= 2:
-            names = itens[1].get_text()
-            return names
-        return None
-
-
-    def get_added_and_edited():
-        itens = html_info.find_all('span', attrs={'class':"date"})
-        return itens[0].get_text(), itens[1].get_text()
-
-    
-    def get_resources():
-        itens = html_info.find_all('span', attrs={'class': 'text'})
-        text = [x.get_text() for x in itens]
-        resources = []
-        for x in text:
-            if(len(x) < 20):
-                if(x != ''):
-                    resources.append(str(x+','))
-        return " ".join(resources)
+        try:
+            itens = html_info.find_all('label', attrs={'itemprop':"alternateName"})
+            print(len(itens))
+            if len(itens) >= 2:
+                names = itens[1].get_text()
+                return True, names
+            return False, False;
+        except:
+            return False, False;
 
     def get_description():
-        itens = soup.find_all('div', attrs={'itemprop': 'description'})
-        text = [x.get_text() for x in itens]
-        return " [".join(text)+"]"
+        try:
+            itens = soup.find_all('div', attrs={'itemprop': 'description'})
+            text = [x.get_text() for x in itens]
+            return True, "".join(text);
+        except:
+            return False, False;
 
     def get_image():
-        itens = soup.find_all('img', attrs={'loading': 'lazy'})[0]['src']
-        return itens;
+        try:
+            itens = soup.find_all('img', attrs={'loading': 'lazy'})[0]['src']
+            return True, itens;
+        except:
+            return False, False;
 
     def get_directly_related_anime():
-        #painel dos animes diretamente relacionados
-        itens = soup.find('div', attrs={'class': 'pane directly_related'})
-        #image
-        direct_image = itens.find_all('img', attrs={'loading': 'lazy'})
-        image = [x.get('src') for x in direct_image]
-        #name
-        direct_name = itens.find_all('a', attrs={'class': 'name-colored'})
-        name = [x.get_text() for x in direct_name]
-        links = [x.get('href') for x in direct_name]
-        print(name)
-        print(links)
-        print(image)
+        try:
+            #painel dos animes diretamente relacionados
+            itens = soup.find('div', attrs={'class': 'pane directly_related'})
+            #image
+            direct_image = itens.find_all('img', attrs={'loading': 'lazy'})
+            image = [x.get('src') for x in direct_image]
+            #name
+            direct_name = itens.find_all('a', attrs={'class': 'name-colored'})
+            name = [x.get_text() for x in direct_name]
+            links = [x.get('href') for x in direct_name]
+            return True, name, links, image;
+        except:
+            return False, False, False, False;
+        
 
 
     def get_indirectly_related_anime():
-        #painel dos animes indiretamente relacionados
-        itens = soup.find('div', attrs={'class': 'g_section relations indirect'})
-        #image
-        indirect_image = itens.find_all('img', attrs={'loading': 'lazy'})
-        image = [x.get('src') for x in indirect_image]
-        #name
-        indirect_name = itens.find_all('a', attrs={'class': 'name-colored'})
-        name = [x.get_text() for x in indirect_name]
-        links = [x.get('href') for x in indirect_name]
-        print(name)
-        print(image)
-        print(links)
+        try:
+            #painel dos animes indiretamente relacionados
+            itens = soup.find('div', attrs={'class': 'g_section relations indirect'})
+            #image
+            indirect_image = itens.find_all('img', attrs={'loading': 'lazy'})
+            image = [x.get('src') for x in indirect_image]
+            #name
+            indirect_name = itens.find_all('a', attrs={'class': 'name-colored'})
+            name = [x.get_text() for x in indirect_name]
+            links = [x.get('href') for x in indirect_name]
+            return True, name, links, image;
+        except:
+            return False, False, False, False;
 
-        
+    
     def get_similar_anime():
-        #painel dos animes diretamente similares
-        itens = soup.find('div', attrs={'class': 'g_section similaranime resized'})
-        #image
-        similar_image = itens.find_all('img', attrs={'loading': 'lazy'})
-        image = [x.get('src') for x in similar_image]
-        #name
-        similar_name = itens.find_all('div', attrs={'class': 'name'})
-        name = [x.get_text().replace('\n','') for x in similar_name]
+        try:
+            #painel dos animes diretamente similares
+            itens = soup.find('div', attrs={'class': 'g_section similaranime resized'})
+            #image
+            similar_image = itens.find_all('img', attrs={'loading': 'lazy'})
+            image = [x.get('src') for x in similar_image]
+            #name
+            similar_name = itens.find_all('div', attrs={'class': 'name'})
+            name = [x.get_text().replace('\n','') for x in similar_name]
+            #links
+            links = []
+            r = re.compile('(?<=href=").*?(?=")')
+            for y in similar_name:
+                links.append(r.findall(str(y))[0])
+            return True, name, links, image;
+        except:
+            return False, False, False, False, ;
 
-        #links
-        links = []
-        r = re.compile('(?<=href=").*?(?=")')
-        for y in similar_name:
-            links.append(r.findall(str(y))[0])
-        print(name)
-        print(links)
-        print(image)
-
+    
     
     def get_episodes():
-        #painel dos episódios
-        itens = soup.find_all('form', attrs={'action': '/perl-bin/animedb.pl'})
-        #episode
-        episode_html = itens[4].find_all('abbr', attrs={'itemprop': 'episodeNumber'})
-        episode_ep = [x.get_text().replace('\n','').replace('\t','') for x in episode_html]
-        #Title
-        title_html = itens[4].find_all('label', attrs={'itemprop': 'name'})
-        episode_title = [x.get_text().replace('\n','').replace('\t','') for x in title_html]
-        #Duration
-        duration_html = itens[4].find_all('td', attrs={'itemprop': 'timeRequired'})
-        episode_duration = [x.get_text().replace('\n','').replace('\t','') for x in duration_html]
-        #Air-date
-        date_html = itens[4].find_all('td', attrs={'itemprop': 'datePublished'})
-        episode_date = [x.get_text().replace('\n','').replace('\t','') for x in date_html]
-        print(episode_ep)
-        print(episode_title)
-        print(episode_duration)
-        print(episode_date)
+        try:
+            #painel dos episódios
+            itens = soup.find_all('form', attrs={'action': '/perl-bin/animedb.pl'})
+            #episode
+            episode_html = itens[4].find_all('abbr', attrs={'itemprop': 'episodeNumber'})
+            episode_ep = [x.get_text().replace('\n','').replace('\t','') for x in episode_html]
+            #Title
+            title_html = itens[4].find_all('label', attrs={'itemprop': 'name'})
+            episode_title = [x.get_text().replace('\n','').replace('\t','') for x in title_html]
+            #Duration
+            duration_html = itens[4].find_all('td', attrs={'itemprop': 'timeRequired'})
+            episode_duration = [x.get_text().replace('\n','').replace('\t','') for x in duration_html]
+            #Air-date
+            date_html = itens[4].find_all('td', attrs={'itemprop': 'datePublished'})
+            episode_date = [x.get_text().replace('\n','').replace('\t','') for x in date_html]
+            return True, episode_ep, episode_title, episode_duration, episode_date;
+        except:
+            return False, False, False, False, False;
 
     def get_songs():
-        #painel das músicas
-        itens = soup.find_all('div', attrs={'class': 'pane hide songs'})
-        #Name
-        song_html = itens[0].find_all('td', attrs={'class': 'name song'})
-        song_name = [x.get_text().replace('\n','').replace('\t','') for x in song_html]
-        #href
-        song_href = []
-        r = re.compile('(?<=href=").*?(?=")')
-        for y in song_html:
-            song_href.append(r.findall(str(y))[0])
-        #Local
-        song_local_html = itens[0].find_all('td', attrs={'class': 'eprange'})
-        song_local = [x.get_text().replace('\n','').replace('\t','') for x in song_local_html]
-        print(song_local)
-        print(song_name)
-        print(song_href)
+        try:
+            #painel das músicas
+            itens = soup.find_all('div', attrs={'class': 'pane hide songs'})
+            #Name
+            song_html = itens[0].find_all('td', attrs={'class': 'name song'})
+            song_name = [x.get_text().replace('\n','').replace('\t','') for x in song_html]
+            #href
+            song_href = []
+            r = re.compile('(?<=href=").*?(?=")')
+            for y in song_html:
+                song_href.append(r.findall(str(y))[0])
+            #Local
+            song_local_html = itens[0].find_all('td', attrs={'class': 'eprange'})
+            song_local = [x.get_text().replace('\n','').replace('\t','') for x in song_local_html]
+            return True, song_local, song_name, song_href;
+        except:
+            return False, False, False, False;
         
         
         
         
         
-    
-        
-    
-    
-    infs['Official_Title_Verified_Yes'] = get_alternative_names()
-    infs['Official_Title_Verified_No'] = get_alternative_names_no()
-    infs['Tags'] = get_genres()
-    infs['Added_By'], infs['Edited_By'] = get_added_and_edited()
-    infs['Resources'] = get_resources()
-    infs['Description'] = get_description()
-    infs['Image'] = get_image()
-    print("\n\nEPISÓDIOS __________________________________________________________________________")    
-    get_episodes()
-    print("\n\nANIMES DIRETAMETE RELACIONADO __________________________________________________________________________")    
-    get_directly_related_anime()
-    print("\n\nANIMES INDIRETAMETE RELACIONADO __________________________________________________________________________")    
-    get_indirectly_related_anime()
-    print("\n\nANIMES SIMILARES__________________________________________________________________________")    
-    get_similar_anime()
-    print("\n\nMÙSICAS __________________________________________________________________________")    
-    get_songs()
-
-
+    #tag
+    #name_alternative_1
+    #name_alternative_2
+    #description
+    #image
+    #directly_related_name, directly_related_links, directly_related_image
+    #indirectly_related_name, indirectly_related_links, indirectly_related_image
+    #similar_anime_name, similar_anime_links, similar_anime_image
+    #episode_ep, episode_title, episode_duration, episode_date
+    #song_local, song_name, song_href
+    tag_check, tag = get_tag(); infs['Tags'] = tag_check;
+    name_alternative_1_check, name_alternative_1 = get_alternative_names(); infs['Official_Title_Verified_Yes'] = name_alternative_1_check;
+    name_alternative_2_check, name_alternative_2 = get_alternative_names_no(); infs['Official_Title_Verified_No'] = name_alternative_2_check;
+    description_check, description = get_description(); infs['Description'] = description_check;
+    image_check, image = get_image(); infs['Image'] = image_check;
+    directly_related_check, directly_related_name, directly_related_links, directly_related_image = get_directly_related_anime(); infs['Directly related'] = directly_related_check;
+    indirectly_related_check, indirectly_related_name, indirectly_related_links, indirectly_related_image = get_indirectly_related_anime(); infs['Indirectly related'] = indirectly_related_check;
+    similar_anime_check, similar_anime_name, similar_anime_links, similar_anime_image = get_similar_anime(); infs['Similar anime'] = similar_anime_check;
+    episode_check, episode_ep, episode_title, episode_duration, episode_date = get_episodes(); infs['Episodes'] = episode_check;
+    song_check, song_local, song_name, song_href = get_songs(); infs['Songs'] = song_check;
+    #infs['Added_By'], infs['Edited_By'] = get_added_and_edited()
+    #infs['Resources'] = get_resources()
     for x in html_info:
         # MAIN TITLE
         if'itemprop="name"' in str(x):
-            infs['Main_Title'] = x.get_text().strip().split('\n')[1]
+            main_title = x.get_text().strip().split('\n')[1]; infs['Main_Title'] = main_title;
         # TYPE
         elif 'class="type"' in str(x):
-            infs['Type'] = x.get_text().split('\n')[2]
+            main_font = x.get_text().split('\n')[2]; infs['Type'] = main_font;
         elif 'itemprop="startDate"' in str(x):
-            infs['Year'] = x.get_text().strip().split('\n')[1]
-        elif 'itemprop="datePublished"' in str(x):
-            infs['Year'] = x.get_text().strip().split('\n')[1]
-        # REVIEW RATING
-        elif 'class="rating attavg mid"' in str(x):
-            infs['Review_Rating'] = x.get_text().strip().split('\n')[1]
-        elif 'class="rating attavg"' in str(x):
-            infs['Review_Rating'] = x.get_text().strip().split('\n')[1]
+            main_year = x.get_text().strip().split('\n')[1]; infs['Year'] = main_year;
         # RATING
         elif 'itemprop="ratingValue"' in str(x):
-            infs['Rating'] = x.get_text().strip().split('\n')[1]
+            main_rating = x.get_text().strip().split('\n')[1]; infs['Rating'] = main_rating;
         # AVARAGE
         elif 'class="rating tmpanime mid"' in str(x):
-            infs['Avarage'] = x.get_text().strip().split('\n')[1]
+            main_avarage = x.get_text().strip().split('\n')[1]; infs['Avarage'] = main_avarage;
         
-
-
-
     for x in infs.keys():
         pass
         print(x + ":", infs[x])
@@ -257,3 +254,45 @@ else:
     number = int(input('\nSelecione um número: ')) - 1
     print()
     get_info(href_animes[number], 1)
+
+
+
+
+
+
+
+
+
+
+
+#elif 'class="rating attavg mid"' in str(x):
+         #   infs['Review_Rating'] = x.get_text().strip().split('\n')[1]
+        #elif 'class="rating attavg"' in str(x):
+         #   infs['Review_Rating'] = x.get_text().strip().split('\n')[1]
+
+#elif 'itemprop="datePublished"' in str(x):
+         #   infs['Year'] = x.get_text().strip().split('\n')[1]
+        # REVIEW RATING
+'''
+ #date_added
+    #date_editade
+    def get_added_and_edited():
+        try:
+            itens = html_info.find_all('span', attrs={'class':"date"})
+            return True, itens[0].get_text(), itens[1].get_text();
+        except:
+            return False;
+
+    def get_resources():
+        try:
+            itens = html_info.find_all('span', attrs={'class': 'text'})
+            text = [x.get_text() for x in itens]
+            resources = []
+            for x in text:
+                if(len(x) < 20):
+                    if(x != ''):
+                        resources.append(str(x+','))
+            return True, "".join(resources);
+        except:
+            return False;
+'''
